@@ -3,7 +3,7 @@ const Router:any = express.Router();
 
 
 Router.get('/', (req: Request, res: Response): any => {
-    res.send('Hello')
+    res.send('Hello from courses')
 });
 
 
