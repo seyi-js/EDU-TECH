@@ -1,7 +1,7 @@
 import bcrypt from "bcryptjs";
 import jwt from 'jsonwebtoken';
 import { privateKey,email_password } from '../config';
-import {Token} from '../models/index'
+import {Token,UserModel} from '../models/index'
 import crypto from 'crypto'
 import Mailer from 'nodemailer'
 
@@ -108,6 +108,25 @@ export const sendMail = async (data:any) => {
     const mail = await Transporter.sendMail( mailOptions );
 
     return mail;
+    } catch (err) {
+        console.log(err)
+    }
+};
+
+//@desc lockAccount
+export const triggerLock = async (id: String) => {
+    try {
+        let user:any = await UserModel.findOne( { _id: id } )
+    
+    if ( parseInt(user.login_failed_attempt_count) < 7 ) {
+        user.login_failed_attempt_count = parseInt(user.login_failed_attempt_count) + 1;
+        user.save();
+    
+       
+    } else if ( parseInt(user.login_failed_attempt_count) === 7 ) {
+        user.isLocked = true;
+        user.save()
+    }
     } catch (err) {
         console.log(err)
     }

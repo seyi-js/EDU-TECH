@@ -1,7 +1,7 @@
 import express, { Application, Request, Response, NextFunction } from 'express';
 const Router:any = express.Router();
 import {UserModel} from '../models/index'
-import {genHash,generateJwtToken,generateRefreshToken} from '../helper/funtions'
+import {genHash,generateJwtToken,generateRefreshToken,triggerLock} from '../helper/funtions'
 import Crypto, { BinaryLike } from 'crypto'
 import {sendSignUpEmail} from '../helper/sendmail'
 import bcrypt from 'bcryptjs'
@@ -46,6 +46,7 @@ Router.post('/register', async (req: Request, res: Response):Promise<any> => {
 
             const token = Crypto.randomBytes(60).toString('hex');
             user.verification_token = token;
+            
             user.verification_token_expires = Date.now() + 60 * 60 * 1000 * 24// 24 Hours
             
             await user.save();
@@ -85,11 +86,15 @@ Router.post('/login', async (req: Request, res: Response):Promise<any> => {
         let user:any = await UserModel.findOne({ email: email.toLowerCase() });
         if (!user) {
            return res.json({message:'Invalid credentials.', code:400}  )
-        } else {
+        }
+        if ( user.isLocked ) {
+            return  res.json({message:'Your account has been restricted due to multiple password trials,please reset your password.', code:423}  )
+        }
+        else {
             let isMatch = bcrypt.compareSync(password, user.password);
             if ( !isMatch ) {
                 
-                
+                triggerLock(user._id);
                return res.json({message:'Invalid credentials', code:400}  )
             }
 
@@ -108,12 +113,13 @@ Router.post('/login', async (req: Request, res: Response):Promise<any> => {
 
                 //Set Last Login
                 user.last_login = Date.now();
+                user.login_failed_attempt_count = 0;
                 user.resetPasswordToken= null,
                 user.resetPasswordExpires= null
                 user.save();
                 return res.status( 200 ).json( {JWTtoken,refresh_token:RToken.toString( 'base64' )} )
             }
-        }
+        };
     } catch (err) {
         console.log(err)
         return res.json({message:'Internal server error.', code:500})

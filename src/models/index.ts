@@ -56,6 +56,10 @@ const userSchema = new mongoose.Schema({
     last_login: {
         type: String,
     },
+    login_failed_attempt_count: {
+        type:String,
+        default:0
+    },
     time_of_creation: {
         type: Date,
         default:Date.now()
