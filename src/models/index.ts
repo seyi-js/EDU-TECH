@@ -38,7 +38,25 @@ const userSchema = new mongoose.Schema({
             type: ObjectId,
             ref: 'courses'
         }
-    ]
+    ],
+    resetPasswordExpires: {
+        type:String,
+    },
+    verification_token: {
+        type:String,
+    },
+    verification_token_expires: {
+        type:String,
+    },
+    isVerified: {
+      
+        type:Boolean,
+      default:false
+      },
+    time_of_creation: {
+        type: Date,
+        default:Date.now()
+    }
 });
 
 /* Courses Schema */
@@ -75,6 +93,7 @@ const courseSchema = new mongoose.Schema({
                 required:true
             },
             acutal_content: {
+                type:String,
                 required:true //This could be an audio file, video file, text
             },
             module_questions: [
@@ -82,9 +101,17 @@ const courseSchema = new mongoose.Schema({
                     type: ObjectId,
                     ref: 'questions'
                 }
-            ]
+            ],
+            time_of_creation: {
+                type: Date,
+                default:Date.now()
+            }
         }
     ],
+    time_of_creation: {
+        type: Date,
+        default:Date.now()
+    }
 });
 
 /* Question Schema */
@@ -106,6 +133,26 @@ const questionSchema = new mongoose.Schema({
     }
 });
 
+/* Token Schema */
+const tokenSchema = new mongoose.Schema( {
+    user_id: {
+        type: String,
+        
+    },
+    token: {
+        type: String,
+    },
+    isValid: {
+        type: Boolean,
+        default: true,
+    },
+    issued_at: {
+        type: String,
+        default: Date.now()
+    }
+} );
+
+export const Token = mongoose.model('tokens', tokenSchema );
 export const UserModel = mongoose.model('users', userSchema);
 export const CourseModel = mongoose.model('courses', courseSchema);
 export const QuestionModel = mongoose.model('questions', questionSchema);
