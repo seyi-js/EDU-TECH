@@ -10,10 +10,11 @@ import Mailer from 'nodemailer'
 //@desc Genarate Json Web Tokens
 interface JWT {
     id: String,
+    auth_type:String
 }
-export const generateJwtToken = ( id:JWT ) => {
+export const generateJwtToken = ( data:JWT ) => {
     const token:string = jwt.sign(
-        { id },
+        { data },
         `${ privateKey }`,
         { expiresIn: 60 * 1000 * 60 * 24 } )//Expires in 24hrs 
        
@@ -21,13 +22,17 @@ export const generateJwtToken = ( id:JWT ) => {
 };
 
 //@desc GenerateRefereshToken
-export const generateRefreshToken = async (userId: String) => {
+interface RJWT {
+    id: String,
+    auth_type:String
+}
+export const generateRefreshToken = async (data: RJWT) => {
     
     
 
     try {
         //Invalidate all other tokens
-        const token:Array<any> = await Token.find({ user_id: userId });
+        const token:Array<any> = await Token.find({ user_id: data.id });
         
         
     token.map( t => {
@@ -41,9 +46,9 @@ export const generateRefreshToken = async (userId: String) => {
     key = await crypto.pbkdf2Sync( password, salt, 10000, 128, 'sha256' );
     if ( key ) {
         const newToken = new Token( {
-            user_id: userId,
+            user_id: data.id,
             token: key.toString('base64'),
-            
+            auth_type:data.auth_type
         } );
 
 

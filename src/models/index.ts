@@ -52,7 +52,10 @@ const userSchema = new mongoose.Schema({
       
         type:Boolean,
       default:false
-      },
+    },
+    last_login: {
+        type: String,
+    },
     time_of_creation: {
         type: Date,
         default:Date.now()
@@ -145,6 +148,9 @@ const tokenSchema = new mongoose.Schema( {
     isValid: {
         type: Boolean,
         default: true,
+    },
+    auth_type: {
+        type: String,
     },
     issued_at: {
         type: String,

@@ -1,9 +1,12 @@
 import express, { Application, Request, Response, NextFunction } from 'express';
 const Router:any = express.Router();
 import {UserModel} from '../models/index'
-import {genHash} from '../helper/funtions'
-import Crypto from 'crypto'
+import {genHash,generateJwtToken,generateRefreshToken} from '../helper/funtions'
+import Crypto, { BinaryLike } from 'crypto'
 import {sendSignUpEmail} from '../helper/sendmail'
+import bcrypt from 'bcryptjs'
+
+
 //@route POST api/auth/register
 //@desc  Register Users
 //@access  Public
@@ -60,9 +63,62 @@ Router.post('/register', async (req: Request, res: Response):Promise<any> => {
 
         }
     } catch (err) {
+        
         console.log(err)
+        return res.json({message:'Internal server error.', code:500})
     }
 });
 
+
+//@route POST api/auth/login
+//@desc  Login Users
+//@access  Public
+Router.post('/login', async (req: Request, res: Response):Promise<any> => {
+    const { email, password } = req.body;
+
+    if ( !email || !password ) {
+        
+        res.json({message:'Please enter all fields.', code:400}  )
+    };
+
+    try {
+        let user:any = await UserModel.findOne({ email: email.toLowerCase() });
+        if (!user) {
+           return res.json({message:'Invalid credentials.', code:400}  )
+        } else {
+            let isMatch = bcrypt.compareSync(password, user.password);
+            if ( !isMatch ) {
+                
+                
+               return res.json({message:'Invalid credentials', code:400}  )
+            }
+
+
+            if ( !user.isVerified ) {
+                return  res.json({message:'Your account is yet to be activated please check your email.', code:423}  )
+                
+            }else {
+                //Generate Tokens
+                let data = {
+                    auth_type: 'normal_login',
+                    id:user._id
+                }
+                const JWTtoken = generateJwtToken(data);
+                const RToken:any = await generateRefreshToken(data);
+
+                //Set Last Login
+                user.last_login = Date.now();
+                user.resetPasswordToken= null,
+                user.resetPasswordExpires= null
+                user.save();
+                return res.status( 200 ).json( {JWTtoken,refresh_token:RToken.toString( 'base64' )} )
+            }
+        }
+    } catch (err) {
+        console.log(err)
+        return res.json({message:'Internal server error.', code:500})
+        
+    }
+});
 
 export default Router;
