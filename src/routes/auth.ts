@@ -5,6 +5,7 @@ import {genHash,generateJwtToken,generateRefreshToken,triggerLock,verifyFacebook
 import Crypto, { BinaryLike } from 'crypto'
 import {sendSignUpEmail} from '../helper/sendmail'
 import bcrypt from 'bcryptjs'
+import {MY_FACEBOOK_ACCESS_TOKEN,MY_FACEBOOK_USERID} from '../config'
 import Axios from 'axios'
 
 //@route POST api/auth/register
@@ -145,8 +146,10 @@ Router.post('/facebook', async (req: Request, res: Response) => {
 
     // console.log(req.body)
 
-    // facebookAccessToken =""
-    // facebookUserId='3246661588893512'
+    if (process.env.NODE_ENV !== 'production') {
+        facebookAccessToken =MY_FACEBOOK_ACCESS_TOKEN
+        facebookUserId=MY_FACEBOOK_USERID
+    }
     //Verify Facebook Access Token
     let data = {
         token: facebookAccessToken,
