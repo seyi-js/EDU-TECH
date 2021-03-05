@@ -7,11 +7,9 @@
 </head>
 <body>
     <a id="loginbtn" onclick="javascript:loginWithFacebook()">Login With Facebook</a>
-<fb:login-button 
-scope="public_profile,email"
-onlogin="checkLoginState();">
-</fb:login-button>
-
+    <a id="googlebtn" onclick="javascript:loginWithGoogle()">Login With Google</a>
+    <div class="g-signin2" data-onsuccess="onSignIn"></div>
+    <meta name="google-signin-client_id" content="351759604405-jl393fam832r7v932kokj7dt5fmil55p.apps.googleusercontent.com">
 <script>
     window.fbAsyncInit = function() {
       FB.init({
@@ -42,7 +40,9 @@ onlogin="checkLoginState();">
     });
   }
   </script>
+  <script src="https://apis.google.com/js/platform.js" async defer></script>
   <script src="index.js"></script>
+  
 </body>
 
 

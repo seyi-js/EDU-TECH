@@ -1,6 +1,7 @@
 import express, { Application} from 'express';
 import path from 'path';
 import mongoose from 'mongoose';
+// const mongoose = require('mongoose')
 // import helmet from 'helmet';
 const helmet = require('helmet')
 import Auth from './routes/auth';

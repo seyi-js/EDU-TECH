@@ -1,11 +1,11 @@
 import bcrypt from "bcryptjs";
 import jwt from 'jsonwebtoken';
-import { privateKey,email_password } from '../config';
+import { privateKey,email_password,GOOGLE_CLIENT_ID } from '../config';
 import {Token,UserModel} from '../models/index'
 import crypto from 'crypto'
 import Mailer from 'nodemailer'
 import Axios from 'axios'
-
+import {OAuth2Client} from 'google-auth-library'
 
 //@desc Genarate Json Web Tokens
 interface JWT {
@@ -164,4 +164,38 @@ export const getUserDataFromFacebook = async (data:FACEBOOKDATA) => {
         console.log(err)
         throw err
     }
+};
+
+interface GOOGLEVERIFY{
+    token: string,
+};
+
+export const verifyGoogleToken = async (data:GOOGLEVERIFY) => {
+    const client = new OAuth2Client(GOOGLE_CLIENT_ID);
+async function verify() {
+  try {
+    const ticket = await client.verifyIdToken({
+        idToken: data.token,
+        audience: GOOGLE_CLIENT_ID,  // Specify the CLIENT_ID of the app that accesses the backend
+        // Or, if multiple clients access the backend:
+        //[CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]
+    });
+    const payload:any = ticket.getPayload();
+   
+      const userid = payload['sub'];
+      return payload;
+    // If request specified a G Suite domain:
+    // const domain = payload['hd'];
+  } catch (err) {
+      throw err;
+  }
+    }
+
+    try {
+        let response = await verify()
+        return response
+    } catch (err) {
+        throw err;
+    }
+
 }

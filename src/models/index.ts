@@ -31,7 +31,14 @@ const userSchema = new mongoose.Schema({
         }
     },
     google_data: {
-        
+        id_token: {
+            type: String,
+            
+        },
+        userId: {
+            type: String,
+           
+        }
     },
     signup_type: {
         type: String,

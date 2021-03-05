@@ -1,11 +1,11 @@
 import express, { Application, Request, Response, NextFunction } from 'express';
 const Router:any = express.Router();
 import {UserModel} from '../models/index'
-import {genHash,generateJwtToken,generateRefreshToken,triggerLock,verifyFacebookAccessToken,getUserDataFromFacebook} from '../helper/funtions'
+import {genHash,generateJwtToken,generateRefreshToken,triggerLock,verifyFacebookAccessToken,getUserDataFromFacebook,verifyGoogleToken} from '../helper/funtions'
 import Crypto, { BinaryLike } from 'crypto'
 import {sendSignUpEmail} from '../helper/sendmail'
 import bcrypt from 'bcryptjs'
-import {MY_FACEBOOK_ACCESS_TOKEN,MY_FACEBOOK_USERID} from '../config'
+import {MY_FACEBOOK_ACCESS_TOKEN,MY_FACEBOOK_USERID,GOOGLE_TOKEN,GOOGLE_CLIENT_ID,GOOGLE_USER_ID} from '../config'
 import Axios from 'axios'
 
 //@route POST api/auth/register
@@ -177,7 +177,6 @@ Router.post('/facebook', async (req: Request, res: Response) => {
 
 
                 user.facebook_data.access_token = facebookAccessToken;
-                user.facebook_data.userId = facebookUserId;
 
                  //Generate Tokens
                  let data2 = {
@@ -247,4 +246,98 @@ Router.post('/facebook', async (req: Request, res: Response) => {
     }
 });
 
+//@route POST api/auth/google
+//@desc  Register or Login Users using social media(Google)
+//@access  Public
+Router.post('/google', async (req: Request, res: Response) => {
+    let { id_token,googleUserId } = req.body;
+    if ( !id_token || !googleUserId   ) {
+        
+        res.json({ message: 'Invalid payload, id_token,googleUserId  required.', code: 400 });
+    };
+
+
+    // console.log(req.body)
+
+    if (process.env.NODE_ENV !== 'production') {
+        id_token  = GOOGLE_TOKEN
+        googleUserId= GOOGLE_USER_ID
+    };
+
+    try {
+        //Verify Token
+        let data = {
+            token:GOOGLE_TOKEN
+        }
+        let response = await verifyGoogleToken(data);
+        // console.log(response)
+        if (response && response.aud === GOOGLE_CLIENT_ID && response.sub === googleUserId && response.email_verified) {
+            //Valid User
+            //Check if user exist in DB => Login 
+                    //else Register => login
+            
+            let user:any = await UserModel.findOne({ 'google_data.userId': googleUserId });
+            if (user) {
+                user.google_data.id_token = id_token;
+
+                 //Generate Tokens
+                 let data2 = {
+                    auth_type: 'google_login',
+                    id:user._id
+                }
+                const JWTtoken = generateJwtToken(data2);
+                const RToken:any = await generateRefreshToken(data2);
+
+                //Set Last Login
+                user.last_login = Date.now();
+                await user.save();
+                return res.json( {JWTtoken,refresh_token:RToken.toString( 'base64' ),code:200} )
+            } else {
+                let data = {
+                    token:GOOGLE_TOKEN
+                }
+                let userData = await verifyGoogleToken(data);
+               
+               // console.log('UserData', userData);
+    
+    
+               const newUser = new UserModel({
+                   email: userData.email,
+                   first_name:userData.given_name,
+                   last_name:userData.family_name,
+                   password: null,
+                   signup_type:'google_signup'
+               });
+    
+               let user: any = await newUser.save();
+               // user.signup_type = 'facebook_signup';
+               user.google_data.id_token = id_token;
+               user.google_data.userId = googleUserId;
+               user.isVerified= true
+               
+    
+    
+               //Generate Tokens
+               let data2 = {
+                   auth_type: 'google_login',
+                   id:user._id
+               }
+               const JWTtoken = generateJwtToken(data2);
+               const RToken:any = await generateRefreshToken(data2);
+    
+               //Set Last Login
+               user.last_login = Date.now();
+               await user.save();
+                return res.json({ JWTtoken, refresh_token: RToken.toString('base64'), code: 200 });
+               
+            }
+        } else {
+             //Invalid User
+             return res.json({ message: 'Unauthorised user.', code: 401 });
+        }
+    } catch (err) {
+        console.log(err)
+        return res.json({ message: 'Internal server error.', code: 500 });
+    }
+});
 export default Router;
