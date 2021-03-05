@@ -11,7 +11,6 @@ const userSchema = new mongoose.Schema({
 
     password: {
         type: String,
-        required: true
     },
     first_name: {
         type: String,
@@ -20,6 +19,23 @@ const userSchema = new mongoose.Schema({
     last_name: {
         type: String,
         required: true
+    },
+    facebook_data: {
+        access_token: {
+            type: String,
+            
+        },
+        userId: {
+            type: String,
+           
+        }
+    },
+    google_data: {
+        
+    },
+    signup_type: {
+        type: String,
+        required:true
     },
     isStudent: {
         type: Boolean,

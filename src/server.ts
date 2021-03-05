@@ -46,6 +46,9 @@ connectToDatabase();
 app.use('/api/auth', Auth);
 app.use('/api/user', User);
 app.use('/api/course', Courses);
-
+app.use(express.static('html'));
+app.get('/', (req, res) => {
+    res.sendFile(path.resolve(__dirname, 'html', 'index.html'));
+})
 
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));

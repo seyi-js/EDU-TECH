@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <a id="loginbtn" onclick="javascript:loginWithFacebook()">Login With Facebook</a>
+<fb:login-button 
+scope="public_profile,email"
+onlogin="checkLoginState();">
+</fb:login-button>
+
+<script>
+    window.fbAsyncInit = function() {
+      FB.init({
+        appId      : '463611071462453',
+        cookie     : true,
+        xfbml      : true,
+        version    : 'v10.0'
+      });
+        
+      FB.AppEvents.logPageView();   
+  
+    //   FBloaded()
+        
+    };
+  
+    (function(d, s, id){
+       var js, fjs = d.getElementsByTagName(s)[0];
+       if (d.getElementById(id)) {return;}
+       js = d.createElement(s); js.id = id;
+       js.src = "https://connect.facebook.net/en_US/sdk.js";
+       fjs.parentNode.insertBefore(js, fjs);
+     }(document, 'script', 'facebook-jssdk'));
+    // checkLoginState()
+   
+  function checkLoginState() {
+    FB.getLoginStatus(function(response) {
+      console.log(response)
+    });
+  }
+  </script>
+  <script src="index.js"></script>
+</body>
+
+
+
+</html>

@@ -4,7 +4,7 @@ import { privateKey,email_password } from '../config';
 import {Token,UserModel} from '../models/index'
 import crypto from 'crypto'
 import Mailer from 'nodemailer'
-
+import Axios from 'axios'
 
 
 //@desc Genarate Json Web Tokens
@@ -63,6 +63,7 @@ export const generateRefreshToken = async (data: RJWT) => {
     
     } catch (err) {
         console.log(err)
+        throw err
     }
     
     
@@ -110,6 +111,7 @@ export const sendMail = async (data:any) => {
     return mail;
     } catch (err) {
         console.log(err)
+        throw err
     }
 };
 
@@ -129,5 +131,37 @@ export const triggerLock = async (id: String) => {
     }
     } catch (err) {
         console.log(err)
+        throw err
     }
 };
+
+interface FACEBOOKVERIFY{
+    token: string,
+}
+export const verifyFacebookAccessToken = async (data:FACEBOOKVERIFY) => {
+    try {
+        let response = await Axios.get(`https://z-m-graph.facebook.com/v10.0/me?access_token=${data.token}&method=get&pretty=0&sdk=joey&suppress_http_code=1`);
+       
+        return response.data;
+    
+    } catch (err) {
+        console.log(err)
+        throw err
+        
+    }
+};
+
+interface FACEBOOKDATA{
+    token:string,
+    userId:string
+}
+export const getUserDataFromFacebook = async (data:FACEBOOKDATA) => {
+    try {
+        let response = await Axios.get(`https://z-m-graph.facebook.com/v10.0/${data.userId}?fields=first_name,last_name,email&access_token=${data.token}`);
+        return response.data;
+    // console.log(response.data)
+    } catch (err) {
+        console.log(err)
+        throw err
+    }
+}
