@@ -1,12 +1,12 @@
 import express, { Application, Request, Response, NextFunction } from 'express';
 const Router:any = express.Router();
-import {UserModel} from '../models/index'
-import {genHash,generateJwtToken,generateRefreshToken,triggerLock,verifyFacebookAccessToken,getUserDataFromFacebook,verifyGoogleToken} from '../helper/funtions'
+import {UserModel} from '../../models/index'
+import {genHash,generateJwtToken,generateRefreshToken,triggerLock,verifyFacebookAccessToken,getUserDataFromFacebook,verifyGoogleToken} from '../../helper/funtions'
 import Crypto, { BinaryLike } from 'crypto'
-import {sendSignUpEmail} from '../helper/sendmail'
+import {sendSignUpEmail} from '../../helper/sendmail'
 import bcrypt from 'bcryptjs'
-import {MY_FACEBOOK_ACCESS_TOKEN,MY_FACEBOOK_USERID,GOOGLE_TOKEN,GOOGLE_CLIENT_ID,GOOGLE_USER_ID} from '../config'
-import Axios from 'axios'
+import {MY_FACEBOOK_ACCESS_TOKEN,MY_FACEBOOK_USERID,GOOGLE_TOKEN,GOOGLE_CLIENT_ID,GOOGLE_USER_ID} from '../../config'
+
 
 //@route POST api/auth/register
 //@desc  Register Users

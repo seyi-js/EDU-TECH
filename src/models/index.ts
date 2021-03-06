@@ -79,6 +79,14 @@ const userSchema = new mongoose.Schema({
     last_login: {
         type: String,
     },
+    isLocked: {
+        type: Boolean,
+        default:false
+    },
+    isSuspended: {
+        type: Boolean,
+        default:false
+    },
     login_failed_attempt_count: {
         type:String,
         default:0
@@ -106,7 +114,7 @@ const courseSchema = new mongoose.Schema({
     },
     number_of_modules: {
         type: Number,
-        required:true
+        // required:true
     },
     course_content: [
         {
