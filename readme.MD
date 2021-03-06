@@ -23,4 +23,9 @@
 //@route POST api/admin/user
 //@desc  Suspend || unsuspend || Downgrade || Upgrade a user
 //@access  Private<Admin>
-//Payload userId,action (one of ([SUSPEND, UNSUSPEND, DOWNGRADE, UPGRADE])
+//Payload userId,action (one of ([SUSPEND, UNSUSPEND, DOWNGRADE, UPGRADE ADMIN])
+
+//@route POST api/admin/createcourse
+//@desc  Create Courses
+//@access  Private<Admin>
+//Payload course_title, course_description, instructor<id> 

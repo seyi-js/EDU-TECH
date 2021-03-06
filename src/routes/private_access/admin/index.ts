@@ -1,7 +1,7 @@
 import express, { Application, Request, Response, NextFunction } from 'express';
 const Router:any = express.Router();
 import { verifyAdmin, verifyToken } from '../../../helper/middleware';
-import { UserModel } from '../../../models/index'
+import { UserModel,CourseModel } from '../../../models/index'
 
 
 //@route POST api/admin/user
@@ -10,7 +10,7 @@ import { UserModel } from '../../../models/index'
 Router.post('/user', verifyToken,verifyAdmin, async (req: Request, res: Response):Promise<any> => {
     const { userId,action } = req.body;
 
-    // Actions like SUSPEND UNSUSPEND DOWNGRADE UPGRADE are allowed
+    // Actions like SUSPEND UNSUSPEND DOWNGRADE UPGRADE ADMIN are allowed
     if (!userId || !action) {
         return res.json({ message: "Invalid payload supplied, userId and action required.", code: 400 });
     };
@@ -50,11 +50,18 @@ Router.post('/user', verifyToken,verifyAdmin, async (req: Request, res: Response
             return res.json({ message: `User with id ${userId} has been downgraded successfully.`, code: 200 });
             };
 
+            //Upgrade a user to instructor
+            if (action === 'ADMIN') {
+                user.isAdmin = true;
+                await user.save();
+                return res.json({ message: `User with id ${userId} has been upgraded successfully.`, code: 200 });
+            };
             
         } else {
             return res.json({message:'Invalid user, user not found.', code:400})
         }
     } catch (err) {
+        console.log(err)
         return res.json({message:'Internal server error.', code:500})
     }
 });
@@ -65,8 +72,25 @@ Router.post('/user', verifyToken,verifyAdmin, async (req: Request, res: Response
 
 Router.post('/createcourse', verifyToken, verifyAdmin, async (req: Request, res: Response): Promise<any> => {
     let { course_title, course_description, instructor } = req.body;
+    if (!course_description || !course_title || !instructor) {
+        return res.json({message:"Invalid payload suplied, course_title, course_description, instructor<id> required.", code:400})
+    };
 
-    
+    try {
+        let newCourse = new CourseModel({
+            course_title: course_title.toUpperCase(),
+            course_description,
+            instructor
+        });
+
+        await newCourse.save();
+
+        return res.json({message:"Course has been added successfully.",code:200})
+    } catch (err) {
+        console.log(err);
+        return res.json({message:'Internal server error.', code:500})
+    }
+
 });
 
 

@@ -3,8 +3,10 @@ import { privateKey } from '../config';
 import {UserModel} from '../models/index'
 import express, { Application, Request, Response, NextFunction } from 'express';
 //@desc Verify Json Web Tokens
-
-export const verifyToken =  ( req:Request, res:Response, next:NextFunction ) => {
+interface AuthRequest extends Request {
+    user?: any
+}
+export const verifyToken =  ( req:AuthRequest, res:Response, next:NextFunction ) => {
     const token = req.header( 'x-auth-token' );
     if ( !token ) {
         
@@ -12,8 +14,8 @@ export const verifyToken =  ( req:Request, res:Response, next:NextFunction ) => 
     } else {
         if ( token ) {
             try {
-                const decoded = jwt.verify( token, privateKey );
-                req.user = decoded;
+                const decoded:any = jwt.verify( token, privateKey );
+                req.user = decoded.data;
                 // decoded;
                 // console.log( decoded )
                 next();
@@ -29,10 +31,11 @@ export const verifyToken =  ( req:Request, res:Response, next:NextFunction ) => 
 };
 
 //@desc verfiyAdmin
-export const verifyAdmin = async ( req:Request, res:Response, next:NextFunction ) => {
+export const verifyAdmin = async ( req:AuthRequest, res:Response, next:NextFunction ) => {
 
     try {
-        let user:any = await UserModel.findById(req.user.id);
+        let user: any = await UserModel.findById(req.user.id);
+        // console.log(req.user)
         if ( user.isAdmin ) {
             next();
 
