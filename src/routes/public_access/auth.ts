@@ -92,6 +92,10 @@ Router.post('/login', async (req: Request, res: Response):Promise<any> => {
         if ( user.isLocked ) {
             return  res.json({message:'Your account has been restricted due to multiple password trials,please reset your password.', code:423}  )
         }
+
+        if (user.isSuspended) {
+            return  res.json({message:'Your account has been suspended please contact IT support for enquiries.', code:423}  )
+        } 
         else {
             let isMatch = bcrypt.compareSync(password, user.password);
             if ( !isMatch ) {
@@ -174,9 +178,10 @@ Router.post('/facebook', async (req: Request, res: Response) => {
             // console.log('User',user)
             if (user) {
                 //User Exist =>   => Login
-
-
-                user.facebook_data.access_token = facebookAccessToken;
+                if (user.isSuspended) {
+                    return  res.json({message:'Your account has been suspended please contact IT support for enquiries.', code:423}  )
+                } else {
+                    user.facebook_data.access_token = facebookAccessToken;
 
                  //Generate Tokens
                  let data2 = {
@@ -190,6 +195,9 @@ Router.post('/facebook', async (req: Request, res: Response) => {
                 user.last_login = Date.now();
                 await user.save();
                 return res.json( {JWTtoken,refresh_token:RToken.toString( 'base64' ),code:200} )
+                }
+
+                
             } else {
 
 
@@ -278,7 +286,11 @@ Router.post('/google', async (req: Request, res: Response) => {
             
             let user:any = await UserModel.findOne({ 'google_data.userId': googleUserId });
             if (user) {
-                user.google_data.id_token = id_token;
+
+                if (user.isSuspended) {
+                    return  res.json({message:'Your account has been suspended please contact IT support for enquiries.', code:423}  )
+                } else {
+                    user.google_data.id_token = id_token;
 
                  //Generate Tokens
                  let data2 = {
@@ -292,6 +304,8 @@ Router.post('/google', async (req: Request, res: Response) => {
                 user.last_login = Date.now();
                 await user.save();
                 return res.json( {JWTtoken,refresh_token:RToken.toString( 'base64' ),code:200} )
+                }
+                
             } else {
                 let data = {
                     token:GOOGLE_TOKEN
