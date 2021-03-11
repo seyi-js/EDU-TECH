@@ -58,11 +58,24 @@ const userSchema = new mongoose.Schema({
     },
     registered_courses: [
         {
-            type: ObjectId,
-            ref: 'courses'
+            course:{
+                type: ObjectId,
+                ref: 'courses'
+            },
+            status: {
+                type: String,
+                default:'UNCOMPLETED'
+            },
+            grade: {
+                type: String,
+                default:'-'
+            }
         }
     ],
     resetPasswordExpires: {
+        type:String,
+    },
+    resetPasswordToken: {
         type:String,
     },
     verification_token: {

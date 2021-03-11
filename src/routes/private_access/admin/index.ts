@@ -2,7 +2,7 @@ import express, { Application, Request, Response, NextFunction } from 'express';
 const Router:any = express.Router();
 import { verifyAdmin, verifyToken } from '../../../helper/middleware';
 import { UserModel,CourseModel } from '../../../models/index'
-
+import {filterOutUserProperties} from '../../../helper/funtions'
 
 //@route POST api/admin/user
 //@desc  Suspend || unsuspend || Downgrade || Upgrade a user
@@ -93,6 +93,52 @@ Router.post('/createcourse', verifyToken, verifyAdmin, async (req: Request, res:
 
 });
 
+//@route POST api/admin/user/all
+//@desc  Get all Users
+//@access  Private<Admin>
+Router.get('/user/all',verifyToken, verifyAdmin,  async (req: Request, res: Response) => {
+    try {
+        let users: any = await UserModel.find({})
+        .populate({ 
+            path: 'registered_courses',
+            populate: {
+              path: '_id',
+              model: 'courses',
+                populate: {
+                    path: 'instructor',
+                    model: 'users'
+                },
+            } 
+        })
+            
+        let apiData = users.map(user => {
+           let includeRegisteredCourses = true
+                return {
+                    // ...user._doc,
+                    user:filterOutUserProperties(user,includeRegisteredCourses)
+                }    
+                });
+        return res.json({ message: apiData, code: 200 });
+        // user
+    } catch (err) {
+        console.log(err);
+        return res.json({ message: 'Internal server error.', code: 500 });
+    }
+});
 
+// UserModel.find({})
+// .populate({ 
+//     path: 'registered_courses',
+//     populate: {
+//       path: '_id',
+//         model: 'courses',
+//         populate: {
+//             path: 'instructor',
+//             model: 'users'
+//           }
+//     } 
+// })
+
+//     .then((res: any) => console.log(res[0].registered_courses[0]._id.instructor))
 
 export default Router;

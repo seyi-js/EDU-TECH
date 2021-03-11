@@ -6,7 +6,8 @@ import mongoose from 'mongoose';
 const helmet = require('helmet')
 import Auth from './routes/public_access/auth';
 import Admin from './routes/private_access/admin/index';
-import Courses from './routes/private_access/courses';
+import Student from './routes/private_access/student/index';
+import Courses from './routes/public_access/courses';
 mongoose.set( 'useCreateIndex', true );
 const app:Application = express();
 const PORT = process.env.PORT || 8080;
@@ -47,6 +48,7 @@ connectToDatabase();
 app.use('/api/auth', Auth);
 app.use('/api/admin', Admin);
 app.use('/api/course', Courses);
+app.use('/api/student', Student);
 app.use(express.static('html'));
 app.get('/', (req, res) => {
     res.sendFile(path.resolve(__dirname, 'html', 'index.html'));

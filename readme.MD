@@ -29,3 +29,17 @@
 //@desc  Create Courses
 //@access  Private<Admin>
 //Payload course_title, course_description, instructor<id> 
+
+//@route POST api/admin/user/all
+//@desc  Get all Users
+//@access  Private<Admin>
+
+
+//@route POST api/student/register_course
+//@desc  Register for courses
+//@access  Private
+//Payload course_id<id>
+
+//@route GET api/course/all
+//@desc  get all Courses
+//@access  Public

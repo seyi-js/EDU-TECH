@@ -198,4 +198,86 @@ async function verify() {
         throw err;
     }
 
+};
+
+
+export const filterOutUserProperties = (user, includeRegisteredCourses?: Boolean) => {
+   
+    interface UserFormat {
+        registered_courses?: any,
+        isStudent: Boolean,
+        isInstructor: any,
+        isAdmin: Boolean,
+        isVerified: Boolean,
+        isLocked: Boolean,
+        isSuspended: Boolean,
+        time_of_creation: String,
+        _id: String,
+        first_name: String,
+        last_name: String,
+    }
+
+    let data: UserFormat = {
+        isStudent: user.isStudent,
+        isInstructor: user.isInstructor,
+        isAdmin: user.isAdmin,
+        isVerified: user.isVerified,
+        isLocked: user.isLocked,
+        isSuspended: user.isSuspended,
+        time_of_creation: user.time_of_creation,
+        _id: user._id,
+        first_name: user.first_name,
+        last_name: user.last_name,
+       
+    }
+
+    //If Registered Courses should be included in the user object
+    if (includeRegisteredCourses) {
+        let course = filterOutCourseProperties(user.registered_courses)
+        data.registered_courses = course;
+    };
+
+    return data;
+
+   
+};
+
+export const filterOutCourseProperties = (courses,includeCourseContent?:Boolean) => {
+    interface CourseFormat{
+        status: String,
+        grade: String,
+        course: {
+            time_of_creation: String,
+            _id: String,
+            course_title: String,
+            course_description: String,
+            instructor: Object,
+            course_content?:Array<any>
+        },
+        
+    }
+  let course =   courses.map(course => {
+          
+    
+      let data: CourseFormat = {
+          status: course.status,
+          grade: course.grade,
+          course: {
+              time_of_creation: course._id.time_of_creation,
+              _id: course._id._id,
+              course_title: course._id.course_title,
+              course_description: course._id.course_description,
+              instructor: filterOutUserProperties(course._id.instructor)
+          }
+      };
+       if(includeCourseContent) {
+        data.course.course_content= course._id.course_content
+    }
+        // course["course_content"]:null
+     
+      return data;
+    
+  });
+    
+    return course;
 }
