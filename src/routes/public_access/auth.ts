@@ -12,9 +12,9 @@ import {MY_FACEBOOK_ACCESS_TOKEN,MY_FACEBOOK_USERID,GOOGLE_TOKEN,GOOGLE_CLIENT_I
 //@desc  Register Users
 //@access  Public
 Router.post('/register', async (req: Request, res: Response):Promise<any> => {
-    const { email, first_name, last_name, password }: any = req.body;
-    if (!email || !first_name || !last_name || !password) {
-        return res.json({message:'Please enter all fields.', code:400}  )
+    const { email, first_name, last_name, password, redirection_url }: any = req.body;
+    if (!email || !first_name || !last_name || !password || !redirection_url) {
+        return res.json({message:'Please enter all fields, email, first_name, last_name, password, redirection_url.', code:400}  )
     };
     const passwordlength:Boolean = password.match( /[A-Z0-9a-z]{8,}/g )
     const checkEmail: Boolean = email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)
@@ -52,7 +52,7 @@ Router.post('/register', async (req: Request, res: Response):Promise<any> => {
             user.verification_token_expires = Date.now() + 60 * 60 * 1000 * 24// 24 Hours
             // user.signup_type= 'normal_signup'
             await user.save();
-            const link = `http://localhost:3000/email/verify/${ token }`
+            const link = `${redirection_url}/${ token }`
             let data = {
                 to: user.email,
                 link,

@@ -3,7 +3,7 @@
 //@route POST api/auth/register
 //@desc  Register Users
 //@access  Public
-//Payload email, first_name, last_name, password 
+//Payload email, first_name, last_name, password,redirection_url
 
 //@route POST api/auth/login
 //@desc  Login Users

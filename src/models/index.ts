@@ -181,6 +181,10 @@ const questionSchema = new mongoose.Schema({
     answer: {
         type: String,
         required:true
+    },
+    course_id: {
+        type: ObjectId,
+        ref: 'courses'
     }
 });
 
