@@ -125,40 +125,96 @@ const courseSchema = new mongoose.Schema({
         type: ObjectId,
         ref:'users'
     },
-    number_of_modules: {
+    number_of_sections: {
         type: Number,
         // required:true
     },
-    course_content: [
-        {
-            module: {
-                type: Number,
-                required:true
-            },
-            content_type: {
-                type: String,
-                required:true
-            },
-            title: {
-                type: String,
-                required:true
-            },
-            acutal_content: {
-                type:String,
-                required:true //This could be an audio file, video file, text
-            },
-            module_questions: [
-                {
-                    type: ObjectId,
-                    ref: 'questions'
-                }
-            ],
-            time_of_creation: {
-                type: Date,
-                default:Date.now()
-            }
-        }
-    ],
+    course_content: {
+            sections: [
+                
+            {
+                    // type: Array,
+                    // required:false,
+                    section_id:{
+                        type: String,
+                        // required: true,
+                       
+                    },
+                    section_number: {
+                        type: Number,
+                        // required: true,
+                        
+                    },
+                    number_of_modules: {
+                        type: String,
+                    },
+                    modules: [
+                        {
+                            module_id:{
+                                type: String,
+                                // required: true,
+                               
+                            },
+                            module_number: {
+                                type: Number,
+                                // required: true,
+                                
+                            },
+                            content_type: {
+                                type: String,
+                                //required:true
+                            },
+                            title: {
+                                type: String,
+                                //required:true
+                            },
+                            actual_content: {
+                                type:String,
+                                //required:true //This could be an audio file, video file, text
+                            },
+                            image: {
+                                image_id: {
+                                    type:String,
+                                },
+                                filename: {
+                                    type:String,
+                                },
+                            },
+                            video: {
+                                video_id: {
+                                    type:String,
+                                },
+                                filename: {
+                                    type:String,
+                                },
+                            },
+                            file: {
+                                file_id: {
+                                    type:String,
+                                },
+                                filename: {
+                                    type:String,
+                                },
+                                content_type: {
+                                    type:String,
+                                }
+                            },
+                            time_of_creation: {
+                                type: Date,
+                                default:Date.now()
+                            }
+                        }
+                    ],
+                    section_questions: [
+                        {
+                            type: ObjectId,
+                            ref: 'questions'
+                        }
+                    ],
+                    isPublished:false,
+                } 
+            ]
+        },
     time_of_creation: {
         type: Date,
         default:Date.now()
@@ -188,6 +244,8 @@ const questionSchema = new mongoose.Schema({
     }
 });
 
+
+
 /* Token Schema */
 const tokenSchema = new mongoose.Schema( {
     user_id: {
@@ -212,7 +270,8 @@ const tokenSchema = new mongoose.Schema( {
 
 export const Token = mongoose.model('tokens', tokenSchema );
 export const UserModel = mongoose.model('users', userSchema);
-export const CourseModel = mongoose.model('courses', courseSchema);
+// export const CourseModel = mongoose.model('courses', courseSchema);
+export const CourseModel = mongoose.model('couses', courseSchema);
 export const QuestionModel = mongoose.model('questions', questionSchema);
 // module.exports = {UserModel,CourseModel,QuestionModel}
 // export default UserModel;

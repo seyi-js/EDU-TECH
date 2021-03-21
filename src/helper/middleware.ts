@@ -52,17 +52,19 @@ export const verifyAdmin = async ( req:AuthRequest, res:Response, next:NextFunct
 
 export const verifyIfInstructorIsAlignWithCourse = async (req: AuthRequest, res: Response, next: NextFunction) => {
     const { course_id } = req.body;
+    // console.log(req)
     if (!course_id) {
         return res.json({message:"Invalid payload suplied, course_id required.", code:400})
     };
 
     try {
         let user: any = await UserModel.findById(req.user.id);
-        let course: any = await CourseModel.findById(course_id);
-        if (user.isInstructor && course && course_id === course.instructor) {
+        let course: any = await CourseModel.findById(course_id).populate('instructor');
+        // console.log(user.isInstructor , course,req.user.id == course.instructor._id)
+        if (user.isInstructor && course && req.user.id == course.instructor._id) {
             next(); //An Instructor for this course
         } else {
-            
+
             return res.json({ message: 'You are not authorized to access this endpoint.', code: 401 });
         }
     } catch (err) {

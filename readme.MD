@@ -43,3 +43,11 @@
 //@route GET api/course/all
 //@desc  get all Courses
 //@access  Public
+
+Tested for TEXT  alone
+
+//@route POST api/instructor/upload_course_content
+//@desc  Upload Course Content
+//@access  Private<instructor of that particular course>
+//payload course_id,module_number,content_type,title,acutal_content, section_number
+//content type can be in any of this format 'IMG', 'VIDEO', 'TEXT', 'FILES'
