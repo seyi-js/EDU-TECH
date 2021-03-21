@@ -1,8 +1,8 @@
 import bcrypt from "bcryptjs";
 import jwt from 'jsonwebtoken';
 import { privateKey,email_password,GOOGLE_CLIENT_ID } from '../config';
-import {Token,UserModel} from '../models/index'
-import crypto from 'crypto'
+import {Token,UserModel,CourseModel} from '../models/index'
+import crypto  from 'crypto'
 import Mailer from 'nodemailer'
 import Axios from 'axios'
 import {OAuth2Client} from 'google-auth-library'
@@ -242,8 +242,8 @@ export const filterOutUserProperties = (user, includeRegisteredCourses?: Boolean
    
 };
 
-export const filterOutCourseProperties = (courses,includeCourseContent?:Boolean) => {
-    interface CourseFormat{
+export const filterOutCourseProperties = (courses, includeCourseContent?: Boolean) => {
+    interface CourseFormat {
         status: String,
         grade: String,
         course: {
@@ -252,32 +252,109 @@ export const filterOutCourseProperties = (courses,includeCourseContent?:Boolean)
             course_title: String,
             course_description: String,
             instructor: Object,
-            course_content?:Array<any>
+            course_content?: Array<any>
         },
         
     }
-  let course =   courses.map(course => {
+    let course = courses.map(course => {
           
     
-      let data: CourseFormat = {
-          status: course.status,
-          grade: course.grade,
-          course: {
-              time_of_creation: course._id.time_of_creation,
-              _id: course._id._id,
-              course_title: course._id.course_title,
-              course_description: course._id.course_description,
-              instructor: filterOutUserProperties(course._id.instructor)
-          }
-      };
-       if(includeCourseContent) {
-        data.course.course_content= course._id.course_content
-    }
+        let data: CourseFormat = {
+            status: course.status,
+            grade: course.grade,
+            course: {
+                time_of_creation: course._id.time_of_creation,
+                _id: course._id._id,
+                course_title: course._id.course_title,
+                course_description: course._id.course_description,
+                instructor: filterOutUserProperties(course._id.instructor)
+            }
+        };
+        if (includeCourseContent) {
+            data.course.course_content = course._id.course_content
+        }
         // course["course_content"]:null
      
-      return data;
+        return data;
     
-  });
+    });
     
     return course;
-}
+};
+
+
+export const handleSavingCourseContent = async (course_id,module_number,content_type,title,actual_content, section_number,image?,file?,video?)=> {
+    try {
+     let course: any = await CourseModel.findById(course_id);
+     if (!course) {
+         return { message: "Invalid course id supplied or the course has been deleted.", code: 400 };
+     };
+ // console.log(course)
+     //Check if section number already exist
+     let section = course.course_content.sections.find(n => n.section_number === Number(section_number));
+     if (section) {
+         //Go Further into the modules section
+         // console.log(section.modules)
+         let module = section.modules.find(n => n.module_number === Number(module_number));
+ 
+         //Check if module number already exist
+         if (module) {
+             return { message: "Module already exist, choose a different number.", code: 400 };
+         } else {
+             let newModule = {
+                 module_id: crypto.pseudoRandomBytes(10).toString('hex'),
+                 module_number:Number(module_number),
+                 content_type,
+                 title,
+                 actual_content,
+                 image,
+                 file,
+                 video
+ 
+             };
+ 
+             //Update number of modules
+             section.number_of_modules = section.modules.length + 1
+             //Update Modules
+             section.modules.push(newModule);
+ 
+             await course.save()
+ 
+             return { message: `Module number ${module_number} has been added to section number ${section_number} successfully.`, code: 200 };
+             
+         };
+     } else {
+         //Create a new section
+         let newSection = {
+             section_id: crypto.pseudoRandomBytes(10).toString('hex'),
+             section_number:Number(section_number),
+             number_of_modules:'1',
+             modules: [
+                 {
+                     module_id: crypto.pseudoRandomBytes(10).toString('hex'),
+                     module_number:Number(module_number),
+                     content_type,
+                     title,
+                     actual_content,
+                     image,
+                     file,
+                     video
+                     
+                 }
+             ]
+         };
+ 
+          //Update number of modules
+          course.number_of_sections = course.course_content.sections.length + 1
+          //Update Modules
+          course.course_content.sections.push(newSection);
+ 
+         await course.save();
+ 
+         return { message: 'New section created successfully.', code: 200 };
+     };
+    } catch (err) {
+     console.log(err)
+     throw err
+    }
+ }
