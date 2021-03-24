@@ -281,9 +281,21 @@ export const filterOutCourseProperties = (courses, includeCourseContent?: Boolea
     
     return course;
 };
+interface CourseContent{
+    course_id: any,
+    module_number: any,
+    content_type: String,
+    title: String,
+    actual_content: String,
+    image?:any,
+    file?:any,
+    video?: any,
+    section_number:any
+    // section_
+}
 
-
-export const handleSavingCourseContent = async (course_id,module_number,content_type,title,actual_content, section_number,image?,file?,video?)=> {
+export const handleSavingCourseContent = async (data: CourseContent) => {
+    let { course_id, module_number, content_type, title, actual_content, section_number, image, video, file} = data;
     try {
      let course: any = await CourseModel.findById(course_id);
      if (!course) {
@@ -312,6 +324,8 @@ export const handleSavingCourseContent = async (course_id,module_number,content_
                  video
  
              };
+
+            //  console.log(newModule)
  
              //Update number of modules
              section.number_of_modules = section.modules.length + 1

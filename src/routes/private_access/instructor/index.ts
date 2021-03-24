@@ -67,7 +67,10 @@ Router.post('/upload_course_content',verifyToken,upload.single('file'), verifyIf
                         image_id:req.file.id,
                         filename:req.file.filename,
                     }
-                    let response = await handleSavingCourseContent(course_id, module_number, content_type, title, actual_content, section_number, image);
+                    let data = {
+                        course_id, module_number, content_type, title, actual_content, section_number, image
+                    }
+                    let response = await handleSavingCourseContent(data);
                     return res.json(response)
 
                 } else {
@@ -83,8 +86,11 @@ Router.post('/upload_course_content',verifyToken,upload.single('file'), verifyIf
                 const video = {
                     video_id:req.file.id,
                     filename:req.file.filename,
-                }
-                let response = await handleSavingCourseContent(course_id, module_number, content_type, title, actual_content, section_number, video);
+                   }
+                    let data = {
+                        course_id, module_number, content_type, title, actual_content, section_number, video
+                    }
+                let response = await handleSavingCourseContent(data);
                 return res.json(response)
 
             } else {
@@ -105,7 +111,11 @@ Router.post('/upload_course_content',verifyToken,upload.single('file'), verifyIf
                           filename: req.file.filename,
                         content_type:req.file.contentType
                     }
-                    let response = await handleSavingCourseContent(course_id, module_number, content_type, title, actual_content, section_number, file);
+
+                    let data = {
+                        course_id, module_number, content_type, title, actual_content, section_number, file
+                    }
+                    let response = await handleSavingCourseContent(data);
                     return res.json(response)
                 } else {
                     return res.json({message:'This file format is not supported.', code:400})
@@ -113,7 +123,10 @@ Router.post('/upload_course_content',verifyToken,upload.single('file'), verifyIf
             };
         } else {
             //Process Text
-            let response = await handleSavingCourseContent(course_id, module_number, content_type, title, actual_content, section_number);
+            let data = {
+                course_id, module_number, content_type, title, actual_content, section_number
+            }
+            let response = await handleSavingCourseContent(data);
 
             return res.json(response)
         }
@@ -129,14 +142,7 @@ Router.post('/upload_course_content',verifyToken,upload.single('file'), verifyIf
     }
 });
 
-// interface CourseContent{
-//     course_id: any,
-//     module_number: any,
-//     content_type: String,
-//     title: String,
-//     actual_content: String,
-//     // section_
-// }
+
 
 
 
