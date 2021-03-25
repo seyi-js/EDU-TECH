@@ -1,7 +1,7 @@
 import express, { Application, Request, Response, NextFunction, request } from 'express';
 const Router: any = express.Router();
 import Crypto from 'crypto';
-import { UserModel,CourseModel } from '../../../models/index'
+import { UserModel,CourseModel,QuestionModel } from '../../../models/index'
 import { filterOutUserProperties, handleSavingCourseContent } from '../../../helper/funtions'
 import {verifyToken,verifyIfInstructorIsAlignWithCourse} from '../../../helper/middleware'
 import { resourceUsage } from 'process';
@@ -24,12 +24,47 @@ Router.put('/edit_questions',verifyToken,verifyIfInstructorIsAlignWithCourse, as
     //Verify if course_id === question.course_id to checkmate foul play.
 });
 
-//@route PUT api/instructor/upload_questions
+//@route POST api/instructor/upload_questions
 //@desc  Upload Questions
 //@access  Private<instructor>
 Router.post('/upload_questions',verifyToken,verifyIfInstructorIsAlignWithCourse, async (req: Request, res: Response) => {
-    const {course_id,section_id } = req.body;
+    const { course_id, section_id, question, options,answer } = req.body;
+
+    if(!course_id || !section_id || !question || !options || options.length === 0 || !answer){
+        return res.json({ message: 'Invalid payload supplied, course_id,section_id,question<Text>, options<Array>,answer.', code: 400 });
+    };
     
+    try {
+        const course:any = await CourseModel.findById(course_id);
+        if (course) {
+            let section = course.course_content.sections.find(section => section.section_id === section_id);
+            if (section) {
+
+                //Save Question To section
+                const newQuestion = new QuestionModel({
+                    question,
+                    answer,
+                    course_id,
+                    options
+                });
+
+                let savedQuestion = await newQuestion.save();
+                section.section_questions.push(savedQuestion._id);
+                course.save();
+
+                res.json({ message: `Question successfully saved to section with the id ${section_id}.`, code: 200 });
+
+            } else {
+                return res.json({ message: 'Invalid section_id supplied or section has been deleted.', code: 400 });
+            }
+
+        } else {
+            return res.json({ message: 'Invalid course_id supplied or course has been deleted.', code: 400 });
+        }
+    } catch (err) {
+        console.log(err);
+        return res.json({ message: 'Internal server error.', code: 500 });
+    }
     
 });
 

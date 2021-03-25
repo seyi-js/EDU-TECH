@@ -60,7 +60,7 @@ const userSchema = new mongoose.Schema({
         {
             course:{
                 type: ObjectId,
-                ref: 'courses'
+                ref: 'couses'
             },
             status: {
                 type: String,
@@ -240,7 +240,7 @@ const questionSchema = new mongoose.Schema({
     },
     course_id: {
         type: ObjectId,
-        ref: 'courses'
+        ref: 'couses'
     }
 });
 

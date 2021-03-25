@@ -12,10 +12,19 @@ Router.get('/all', async (req: Request, res: Response) => {
             .populate({ 
                 path: 'course_content',
                 populate: {
-                  path: 'module_questions',
-                  model: 'questions',
+                  path: 'sections',
+                    populate: {
+                        path: 'section_questions',
+                        model: 'questions',
+                        populate: {
+                            path: 'course_id',
+                            model: 'couses',
+                        }
+                    },
+                    
                 } 
             })
+            
         
        let apiData = courses.map(course => {
            
