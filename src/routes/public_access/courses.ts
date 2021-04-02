@@ -1,7 +1,7 @@
 import express, { Application, Request, Response, NextFunction } from 'express';
 const Router: any = express.Router();
 import { UserModel,CourseModel } from '../../models/index'
-import {filterOutUserProperties} from '../../helper/funtions'
+import {filterOutUserProperties,filterOutSomeCourseContentProperties} from '../../helper/funtions'
 //@route GET api/course/all
 //@desc  get all Courses
 //@access  Public
@@ -16,10 +16,10 @@ Router.get('/all', async (req: Request, res: Response) => {
                     populate: {
                         path: 'section_questions',
                         model: 'questions',
-                        populate: {
-                            path: 'course_id',
-                            model: 'couses',
-                        }
+                        // populate: {
+                        //     path: 'course_id',
+                        //     model: 'couses',
+                        // }
                     },
                     
                 } 
@@ -27,12 +27,17 @@ Router.get('/all', async (req: Request, res: Response) => {
             
         
        let apiData = courses.map(course => {
-           
+        filterOutSomeCourseContentProperties(course.course_content)
             return {
                 ...course._doc,
-                instructor:filterOutUserProperties(course.instructor)
+                instructor:filterOutUserProperties(course.instructor),
+                
             }    
-            });
+       });
+
+        
+        
+        
         
             return res.json({message:apiData, code:200})
     } catch (err) {
@@ -41,12 +46,6 @@ Router.get('/all', async (req: Request, res: Response) => {
     }
 });
 
-// var a:any = {
-//     name: 'sameul',
-//     tolu:'tope'
-// }
 
-// delete a.name;
-// console.log(a)
 
 export default Router;

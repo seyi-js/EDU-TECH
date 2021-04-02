@@ -295,80 +295,89 @@ interface CourseContent{
 }
 
 export const handleSavingCourseContent = async (data: CourseContent) => {
-    let { course_id, module_number, content_type, title, actual_content, section_number, image, video, file} = data;
+    let { course_id, module_number, content_type, title, actual_content, section_number, image, video, file } = data;
     try {
-     let course: any = await CourseModel.findById(course_id);
-     if (!course) {
-         return { message: "Invalid course id supplied or the course has been deleted.", code: 400 };
-     };
- // console.log(course)
-     //Check if section number already exist
-     let section = course.course_content.sections.find(n => n.section_number === Number(section_number));
-     if (section) {
-         //Go Further into the modules section
-         // console.log(section.modules)
-         let module = section.modules.find(n => n.module_number === Number(module_number));
+        let course: any = await CourseModel.findById(course_id);
+        if (!course) {
+            return { message: "Invalid course id supplied or the course has been deleted.", code: 400 };
+        };
+        // console.log(course)
+        //Check if section number already exist
+        let section = course.course_content.sections.find(n => n.section_number === Number(section_number));
+        if (section) {
+            //Go Further into the modules section
+            // console.log(section.modules)
+            let module = section.modules.find(n => n.module_number === Number(module_number));
  
-         //Check if module number already exist
-         if (module) {
-             return { message: "Module already exist, choose a different number.", code: 400 };
-         } else {
-             let newModule = {
-                 module_id: crypto.pseudoRandomBytes(10).toString('hex'),
-                 module_number:Number(module_number),
-                 content_type,
-                 title,
-                 actual_content,
-                 image,
-                 file,
-                 video
+            //Check if module number already exist
+            if (module) {
+                return { message: "Module already exist, choose a different number.", code: 400 };
+            } else {
+                let newModule = {
+                    module_id: crypto.pseudoRandomBytes(10).toString('hex'),
+                    module_number: Number(module_number),
+                    content_type,
+                    title,
+                    actual_content,
+                    image,
+                    file,
+                    video
  
-             };
+                };
 
-            //  console.log(newModule)
+                //  console.log(newModule)
  
-             //Update number of modules
-             section.number_of_modules = section.modules.length + 1
-             //Update Modules
-             section.modules.push(newModule);
+                //Update number of modules
+                section.number_of_modules = section.modules.length + 1
+                //Update Modules
+                section.modules.push(newModule);
  
-             await course.save()
+                await course.save()
  
-             return { message: `Module number ${module_number} has been added to section number ${section_number} successfully.`, code: 200 };
+                return { message: `Module number ${module_number} has been added to section number ${section_number} successfully.`, code: 200 };
              
-         };
-     } else {
-         //Create a new section
-         let newSection = {
-             section_id: crypto.pseudoRandomBytes(10).toString('hex'),
-             section_number:Number(section_number),
-             number_of_modules:'1',
-             modules: [
-                 {
-                     module_id: crypto.pseudoRandomBytes(10).toString('hex'),
-                     module_number:Number(module_number),
-                     content_type,
-                     title,
-                     actual_content,
-                     image,
-                     file,
-                     video
+            };
+        } else {
+            //Create a new section
+            let newSection = {
+                section_id: crypto.pseudoRandomBytes(10).toString('hex'),
+                section_number: Number(section_number),
+                number_of_modules: '1',
+                modules: [
+                    {
+                        module_id: crypto.pseudoRandomBytes(10).toString('hex'),
+                        module_number: Number(module_number),
+                        content_type,
+                        title,
+                        actual_content,
+                        image,
+                        file,
+                        video
                      
-                 }
-             ]
-         };
+                    }
+                ]
+            };
  
-          //Update number of modules
-          course.number_of_sections = course.course_content.sections.length + 1
-          //Update Modules
-          course.course_content.sections.push(newSection);
+            //Update number of modules
+            course.number_of_sections = course.course_content.sections.length + 1
+            //Update Modules
+            course.course_content.sections.push(newSection);
  
-         await course.save();
+            await course.save();
  
-         return { message: 'New section created successfully.', code: 200 };
-     };
+            return { message: 'New section created successfully.', code: 200 };
+        };
     } catch (err) {
-     console.log(err)
-     throw err
+        console.log(err)
+        throw err
     }
- }
+};
+
+export const filterOutSomeCourseContentProperties = (content) => {
+
+    content.sections.forEach(section => {
+        section.section_questions.map(question => {
+            question.answer = null
+        });
+    });
+}

@@ -5,13 +5,57 @@ import { UserModel,CourseModel,QuestionModel } from '../../../models/index'
 import { filterOutUserProperties, handleSavingCourseContent } from '../../../helper/funtions'
 import {verifyToken,verifyIfInstructorIsAlignWithCourse} from '../../../helper/middleware'
 import { resourceUsage } from 'process';
-const {upload,gfs} = require('../../../dbConnection')
+const {upload,gfs} = require('../../../dbConnection');
+
+
+
+
 //@route PUT api/instructor/edit_course
 //@desc  Edit a course
 //@access  Private<instructor>
-
 Router.put('/edit_course', verifyToken,verifyIfInstructorIsAlignWithCourse, async (req: Request, res: Response) => {
-    const {course_id,course_title,course_description,module,content_type,title,acutal_content} = req.body;
+    const {course_id,course_title,course_description} = req.body;
+    if(!course_id || !course_title || !course_description){
+        return res.json({ message: 'Invalid payload supplied, module_id,course_id,section_id required.', code: 400 });
+    };
+    let updatedData = {
+        $set: {
+            course_title,
+            course_description
+        }
+    };
+
+
+    try {
+              await CourseModel.findByIdAndUpdate(course_id,updatedData);
+            res.json({ message: `Course with id ${course_id} successfully updated.`, code: 200 });
+    } catch (err) {
+        console.log(err);
+        return res.json({ message: 'Internal server error.', code: 500 });
+    }
+
+});
+
+//TODO
+//@route PUT api/instructor/edit_module
+//@desc  Edit a module
+//@access  Private<instructor>
+
+Router.put('/edit_module', verifyToken,verifyIfInstructorIsAlignWithCourse, async (req: Request, res: Response) => {
+    const {course_id,module_id,section_id,content_type,module_number,title} = req.body;
+
+
+    if(!course_id || !module_id || !section_id){
+        return res.json({ message: 'Invalid payload supplied, module_id,course_id,section_id required.', code: 400 });
+    };
+
+    try {
+        
+    } catch (err) {
+        console.log(err);
+        return res.json({ message: 'Internal server error.', code: 500 });
+    }
+
 });
 
 //@route PUT api/instructor/edit_questions
@@ -19,19 +63,47 @@ Router.put('/edit_course', verifyToken,verifyIfInstructorIsAlignWithCourse, asyn
 //@access  Private<instructor>
 
 Router.put('/edit_questions',verifyToken,verifyIfInstructorIsAlignWithCourse, async (req: Request, res: Response) => {
-    const { question_id, course_id } = req.body;
+    const { question_id, course_id,question,answer,options } = req.body;
+    if (!question_id || !answer || !question || !options) {
+        return res.json({ message: 'Invalid payload supplied, course_id,question_id,question<Text>, options<Array>,answer required.', code: 400 });
+    };
+    try {
+
+        let Q:any = await QuestionModel.findById(question_id);
+
+        let updatedData = {
+            $set: {
+                question,
+                answer,
+                options
+            }
+        };
+
+
+        if (Q.course_id !== course_id) {
+        
+            await QuestionModel.findByIdAndUpdate(question_id,updatedData);
+            res.json({ message: `Question with id ${question_id} successfully updated.`, code: 200 });
+        } else{
+            return res.json({ message: 'You are not authorised to edit this content.', code: 401 })
+ 
+    }
+    } catch (err) {
+        console.log(err);
+        return res.json({ message: 'Internal server error.', code: 500 });
+    };
     
-    //Verify if course_id === question.course_id to checkmate foul play.
+   
 });
 
 //@route POST api/instructor/upload_questions
 //@desc  Upload Questions
 //@access  Private<instructor>
-Router.post('/upload_questions',verifyToken,verifyIfInstructorIsAlignWithCourse, async (req: Request, res: Response) => {
+Router.post('upload_questions/',verifyToken,verifyIfInstructorIsAlignWithCourse, async (req: Request, res: Response) => {
     const { course_id, section_id, question, options,answer } = req.body;
 
     if(!course_id || !section_id || !question || !options || options.length === 0 || !answer){
-        return res.json({ message: 'Invalid payload supplied, course_id,section_id,question<Text>, options<Array>,answer.', code: 400 });
+        return res.json({ message: 'Invalid payload supplied, course_id,section_id,question<Text>, options<Array>,answer required.', code: 400 });
     };
     
     try {

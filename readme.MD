@@ -51,3 +51,21 @@
 //@access  Private<instructor of that particular course>
 //payload course_id,module_number,content_type,title,acutal_content, section_number
 //content type can be in any of this format 'IMG<jpg,png>', 'VIDEO<mp4,mp3>', 'TEXT', 'FILES<docx,pdf>'
+
+//@route POST api/instructor/upload_questions
+//@desc  Upload Questions
+//@access  Private<instructor>
+//payload Invalid payload supplied, course_id,section_id,question<Text>, options<Array>.
+
+
+NEW ROUTES
+
+//@route PUT api/instructor/edit_questions
+//@desc  Edit questions
+//@access  Private<instructor>
+//payload course_id,question_id,question<Text>, options<Array>,answer
+
+//@route PUT api/instructor/edit_course
+//@desc  Edit a course
+//@access  Private<instructor>
+//payload module_id,course_id,section_id
