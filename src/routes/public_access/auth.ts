@@ -72,6 +72,38 @@ Router.post('/register', async (req: Request, res: Response):Promise<any> => {
     }
 });
 
+//@route PUT api/auth/verifyemail
+//@desc  verify email
+//@ccess  Public
+Router.put( '/verifyemail', async( req, res ) => {
+    const { token } = req.body;
+    if ( !token ) {
+        return res.json( { message: 'Token not found.', code: 400 } );
+    }
+
+   try{
+    let user:any = await UserModel.findOne( { verification_token: token, verification_token_expires: { $gt: Date.now() } } );
+        
+    if ( !user ) {
+      return  res.json( { message: 'Invalid/Expired token provided.', code: 403 } );
+    } else {
+        user.isVerified = true
+        user.verification_token = ''
+        user.verification_token_expires = ''
+        user.save();
+        res.json({message:'User verified',code:200})
+        };
+  
+} catch(err){
+
+
+    console.log(err)
+    return res.json({message:'Internal server error.', code:500})
+   };
+        
+      
+} );
+
 
 //@route POST api/auth/login
 //@desc  Login Users
