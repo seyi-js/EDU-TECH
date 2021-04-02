@@ -15,19 +15,17 @@ const PORT = process.env.PORT || 8080;
 
 
     
-    app.use(
-        helmet({
-          contentSecurityPolicy: false,
-        })
-      );
+app.use(helmet.xssFilter());
+app.use(helmet.hidePoweredBy());
     
-      app.use(
-          helmet.referrerPolicy({
-            policy: ["origin", "unsafe-url"],
-          })
-        );
-    //Body Parser
-    app.use(express.json());
+    //   app.use(
+    //       helmet.referrerPolicy({
+    //         policy: ["origin", "unsafe-url"],
+    //       })
+    //     );
+   //Body Parser
+
+app.use( express.json(  ) );
 
 
 app.use('/api/auth', Auth);

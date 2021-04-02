@@ -5,7 +5,7 @@ import { UserModel,CourseModel,QuestionModel } from '../../../models/index'
 import { filterOutUserProperties, handleSavingCourseContent } from '../../../helper/funtions'
 import {verifyToken,verifyIfInstructorIsAlignWithCourse} from '../../../helper/middleware'
 import { resourceUsage } from 'process';
-const {upload,gfs} = require('../../../dbConnection');
+const {upload} = require('../../../dbConnection');
 
 
 
@@ -173,6 +173,7 @@ Router.post('/upload_course_content',verifyToken,upload.single('file'), verifyIf
                     const image = {
                         image_id:req.file.id,
                         filename:req.file.filename,
+                        url:`http://localhost:8080/api/course/media/${req.file.filename}`
                     }
                     let data = {
                         course_id, module_number, content_type, title, actual_content, section_number, image
@@ -193,6 +194,7 @@ Router.post('/upload_course_content',verifyToken,upload.single('file'), verifyIf
                 const video = {
                     video_id:req.file.id,
                     filename:req.file.filename,
+                    url:`http://localhost:8080/api/course/media/${req.file.filename}`
                    }
                     let data = {
                         course_id, module_number, content_type, title, actual_content, section_number, video
@@ -216,7 +218,8 @@ Router.post('/upload_course_content',verifyToken,upload.single('file'), verifyIf
                       const file = {
                         file_id:req.file.id,
                           filename: req.file.filename,
-                        content_type:req.file.contentType
+                        content_type:req.file.contentType,
+                        url:`http://localhost:8080/api/course/media/${req.file.filename}`
                     }
 
                     let data = {

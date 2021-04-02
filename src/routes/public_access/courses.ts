@@ -1,7 +1,11 @@
 import express, { Application, Request, Response, NextFunction } from 'express';
 const Router: any = express.Router();
 import { UserModel,CourseModel } from '../../models/index'
-import {filterOutUserProperties,filterOutSomeCourseContentProperties} from '../../helper/funtions'
+import {filterOutUserProperties,filterOutSomeCourseContentProperties} from '../../helper/funtions';
+import {gfs} from '../../dbConnection'
+// const {upload,} = require('../../dbConnection');
+
+
 //@route GET api/course/all
 //@desc  get all Courses
 //@access  Public
@@ -47,5 +51,28 @@ Router.get('/all', async (req: Request, res: Response) => {
 });
 
 
+
+//@route GET api/course/media/:filename
+//@desc  get media files
+//@access  Public
+Router.get( '/media/:filename',  ( req: Request, res:Response) => {
+    let { filename } = req.params;
+    if ( !filename ) {
+        res.json({message:'Invalid Request. filename required as params',code:400})
+    }
+    var readStream = gfs.createReadStream(filename )
+     //Write to filesystem
+     readStream.pipe(res)
+    
+    readStream.on( 'close', () => {
+            
+        // console.log( 'done' )
+    
+    } );
+
+readStream.on( 'error', (err) => {
+    res.json({message:'File does not exist.', code:400})
+});
+});
 
 export default Router;

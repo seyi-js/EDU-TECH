@@ -16,7 +16,7 @@ export const generateJwtToken = ( data:JWT ) => {
     const token:string = jwt.sign(
         { data },
         `${ privateKey }`,
-        { expiresIn: 60 * 1000 * 60 * 24 } )//Expires in 24hrs 
+        { expiresIn: 60 * 60 * 72 } )//Expires in 72hrs 
        
     return token;
 };

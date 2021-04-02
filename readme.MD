@@ -69,3 +69,8 @@ NEW ROUTES
 //@desc  Edit a course
 //@access  Private<instructor>
 //payload module_id,course_id,section_id
+
+
+//@route GET api/course/media/:filename
+//@desc  get media files
+//@access  Public
