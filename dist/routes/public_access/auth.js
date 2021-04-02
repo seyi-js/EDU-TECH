@@ -76,6 +76,34 @@ Router.post('/register', (req, res) => __awaiter(void 0, void 0, void 0, functio
         return res.json({ message: 'Internal server error.', code: 500 });
     }
 }));
+//@route PUT api/auth/verifyemail
+//@desc  verify email
+//@ccess  Public
+Router.put('/verifyemail', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { token } = req.body;
+    if (!token) {
+        return res.json({ message: 'Token not found.', code: 400 });
+    }
+    try {
+        let user = yield index_1.UserModel.findOne({ verification_token: token, verification_token_expires: { $gt: Date.now() } });
+        if (!user) {
+            return res.json({ message: 'Invalid/Expired token provided.', code: 403 });
+        }
+        else {
+            user.isVerified = true;
+            user.verification_token = '';
+            user.verification_token_expires = '';
+            user.save();
+            res.json({ message: 'User verified', code: 200 });
+        }
+        ;
+    }
+    catch (err) {
+        console.log(err);
+        return res.json({ message: 'Internal server error.', code: 500 });
+    }
+    ;
+}));
 //@route POST api/auth/login
 //@desc  Login Users
 //@access  Public

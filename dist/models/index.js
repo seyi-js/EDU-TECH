@@ -61,7 +61,7 @@ const userSchema = new mongoose_1.default.Schema({
         {
             course: {
                 type: ObjectId,
-                ref: 'courses'
+                ref: 'couses'
             },
             status: {
                 type: String,
@@ -232,7 +232,7 @@ const questionSchema = new mongoose_1.default.Schema({
     },
     course_id: {
         type: ObjectId,
-        ref: 'courses'
+        ref: 'couses'
     }
 });
 /* Token Schema */

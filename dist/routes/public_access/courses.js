@@ -16,6 +16,8 @@ const express_1 = __importDefault(require("express"));
 const Router = express_1.default.Router();
 const index_1 = require("../../models/index");
 const funtions_1 = require("../../helper/funtions");
+const dbConnection_1 = require("../../dbConnection");
+// const {upload,} = require('../../dbConnection');
 //@route GET api/course/all
 //@desc  get all Courses
 //@access  Public
@@ -26,11 +28,19 @@ Router.get('/all', (req, res) => __awaiter(void 0, void 0, void 0, function* () 
             .populate({
             path: 'course_content',
             populate: {
-                path: 'module_questions',
-                model: 'questions',
+                path: 'sections',
+                populate: {
+                    path: 'section_questions',
+                    model: 'questions',
+                    // populate: {
+                    //     path: 'course_id',
+                    //     model: 'couses',
+                    // }
+                },
             }
         });
         let apiData = courses.map(course => {
+            funtions_1.filterOutSomeCourseContentProperties(course.course_content);
             return Object.assign(Object.assign({}, course._doc), { instructor: funtions_1.filterOutUserProperties(course.instructor) });
         });
         return res.json({ message: apiData, code: 200 });
@@ -40,10 +50,22 @@ Router.get('/all', (req, res) => __awaiter(void 0, void 0, void 0, function* () 
         return res.json({ message: 'Internal server error.', code: 500 });
     }
 }));
-// var a:any = {
-//     name: 'sameul',
-//     tolu:'tope'
-// }
-// delete a.name;
-// console.log(a)
+//@route GET api/course/media/:filename
+//@desc  get media files
+//@access  Public
+Router.get('/media/:filename', (req, res) => {
+    let { filename } = req.params;
+    if (!filename) {
+        res.json({ message: 'Invalid Request. filename required as params', code: 400 });
+    }
+    var readStream = dbConnection_1.gfs.createReadStream(filename);
+    //Write to filesystem
+    readStream.pipe(res);
+    readStream.on('close', () => {
+        // console.log( 'done' )
+    });
+    readStream.on('error', (err) => {
+        res.json({ message: 'File does not exist.', code: 400 });
+    });
+});
 exports.default = Router;

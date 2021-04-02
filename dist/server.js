@@ -16,12 +16,13 @@ const courses_1 = __importDefault(require("./routes/public_access/courses"));
 const dbConnection = require('./dbConnection');
 const app = express_1.default();
 const PORT = process.env.PORT || 8080;
-app.use(helmet_1.default({
-    contentSecurityPolicy: false,
-}));
-app.use(helmet_1.default.referrerPolicy({
-    policy: ["origin", "unsafe-url"],
-}));
+app.use(helmet_1.default.xssFilter());
+app.use(helmet_1.default.hidePoweredBy());
+//   app.use(
+//       helmet.referrerPolicy({
+//         policy: ["origin", "unsafe-url"],
+//       })
+//     );
 //Body Parser
 app.use(express_1.default.json());
 app.use('/api/auth', auth_1.default);

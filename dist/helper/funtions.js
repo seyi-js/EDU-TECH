@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.handleSavingCourseContent = exports.filterOutCourseProperties = exports.filterOutUserProperties = exports.verifyGoogleToken = exports.getUserDataFromFacebook = exports.verifyFacebookAccessToken = exports.triggerLock = exports.sendMail = exports.genHash = exports.generateRefreshToken = exports.generateJwtToken = void 0;
+exports.filterOutSomeCourseContentProperties = exports.handleSavingCourseContent = exports.filterOutCourseProperties = exports.filterOutUserProperties = exports.verifyGoogleToken = exports.getUserDataFromFacebook = exports.verifyFacebookAccessToken = exports.triggerLock = exports.sendMail = exports.genHash = exports.generateRefreshToken = exports.generateJwtToken = void 0;
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const config_1 = require("../config");
@@ -22,7 +22,7 @@ const nodemailer_1 = __importDefault(require("nodemailer"));
 const axios_1 = __importDefault(require("axios"));
 const google_auth_library_1 = require("google-auth-library");
 const generateJwtToken = (data) => {
-    const token = jsonwebtoken_1.default.sign({ data }, `${config_1.privateKey}`, { expiresIn: 60 * 1000 * 60 * 24 }); //Expires in 24hrs 
+    const token = jsonwebtoken_1.default.sign({ data }, `${config_1.privateKey}`, { expiresIn: 60 * 60 * 72 }); //Expires in 72hrs 
     return token;
 };
 exports.generateJwtToken = generateJwtToken;
@@ -212,7 +212,8 @@ const filterOutCourseProperties = (courses, includeCourseContent) => {
     return course;
 };
 exports.filterOutCourseProperties = filterOutCourseProperties;
-const handleSavingCourseContent = (course_id, module_number, content_type, title, actual_content, section_number, image, file, video) => __awaiter(void 0, void 0, void 0, function* () {
+const handleSavingCourseContent = (data) => __awaiter(void 0, void 0, void 0, function* () {
+    let { course_id, module_number, content_type, title, actual_content, section_number, image, video, file } = data;
     try {
         let course = yield index_1.CourseModel.findById(course_id);
         if (!course) {
@@ -241,6 +242,7 @@ const handleSavingCourseContent = (course_id, module_number, content_type, title
                     file,
                     video
                 };
+                //  console.log(newModule)
                 //Update number of modules
                 section.number_of_modules = section.modules.length + 1;
                 //Update Modules
@@ -284,3 +286,11 @@ const handleSavingCourseContent = (course_id, module_number, content_type, title
     }
 });
 exports.handleSavingCourseContent = handleSavingCourseContent;
+const filterOutSomeCourseContentProperties = (content) => {
+    content.sections.forEach(section => {
+        section.section_questions.map(question => {
+            question.answer = null;
+        });
+    });
+};
+exports.filterOutSomeCourseContentProperties = filterOutSomeCourseContentProperties;
