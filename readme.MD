@@ -51,10 +51,10 @@
 //@access  Private<Admin>
 
 
-###### @route POST api/student/register_course
-- @desc  Register for courses
+###### @route POST api/student/add_drop_course
+- @desc  Register and Un-register courses
 - @access  Private
-- Payload course_id<id>
+- Payload course_id<id>,action<REGISTER,UN_REGISTER>
 
 ###### @route GET api/course/all
 - @desc  get all Courses
@@ -87,3 +87,7 @@
 ###### @route GET api/course/media/:filename
 - @desc  get media files
 - @access  Public
+
+###### @route GET api/user
+- @desc  Get user details
+- @access  Private

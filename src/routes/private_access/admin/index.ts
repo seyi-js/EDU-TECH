@@ -103,7 +103,7 @@ Router.get('/user/all',verifyToken, verifyAdmin,  async (req: Request, res: Resp
             path: 'registered_courses',
             populate: {
               path: '_id',
-              model: 'courses',
+              model: 'couses',
                 populate: {
                     path: 'instructor',
                     model: 'users'
@@ -126,19 +126,6 @@ Router.get('/user/all',verifyToken, verifyAdmin,  async (req: Request, res: Resp
     }
 });
 
-// UserModel.find({})
-// .populate({ 
-//     path: 'registered_courses',
-//     populate: {
-//       path: '_id',
-//         model: 'courses',
-//         populate: {
-//             path: 'instructor',
-//             model: 'users'
-//           }
-//     } 
-// })
 
-//     .then((res: any) => console.log(res[0].registered_courses[0]._id.instructor))
 
 export default Router;
